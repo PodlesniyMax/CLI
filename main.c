@@ -14,11 +14,16 @@ int main(int argc, char **argv)
 	for (;;) {
 		printf(" > ");
 		state = get_command(&lexeme_list);
-		if (state != 0) {
+		if (state == end_of_file) {
 			break;
+		} else if (state == empty_str) {
+			continue;
+		} else if (state == error) {
+			printf("Error: wrong command\n");
+			continue;
 		}
 		for (struct list *l = lexeme_list; l; l = l->next) {
-			printf("%s\n", l->lexeme);
+			printf("[%s]\n", l->lexeme);
 		}
 		process_command();
 		free_mem(lexeme_list);

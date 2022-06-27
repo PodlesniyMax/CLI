@@ -13,22 +13,22 @@ static bool is_empty(const char *str);
 
 int get_command(struct list **lexemes_list)
 {
-	int state = 0;
+	int state;
 	char *buff = NULL;
 
 	state = push_input_to_buffer(&buff);
-	if (state <= 0) {
-		return -1;
+	if (state == end_of_file) {
+		return end_of_file;
 	}
 	if (is_empty(buff)) {
-		return 1;
+		return empty_str;
 	}
 	if (!is_correct_str(buff)) {
-		return 2;
+		return error;
 	}
 	*lexemes_list = split_str_on_lexemes_list(buff);
 	free(buff);
-	return 0;
+	return success;
 }
 
 static int push_input_to_buffer(char **buff)
@@ -38,13 +38,14 @@ static int push_input_to_buffer(char **buff)
 	char c;
 
 	*buff = malloc(sizeof(char) * size);
-	if (!*buff)
-		return 0;
+	if (!*buff) {
+		printf("Error: fail memmory allocation.");
+		return end_of_file;
+	}
 
 	while ((c = getchar()) != EOF) {
 		if (c_count >= size - 1) {
 			size *= 2;
-			printf("Realloc memmory, new buff size = %d\n", size);
 			*buff = realloc(*buff, size);
 			if (!*buff)
 				return 0;
@@ -60,7 +61,7 @@ static int push_input_to_buffer(char **buff)
 
 	if (c == EOF) {
 		free(*buff);
-		return -1;
+		return end_of_file;
 	}
 
 	return c_count;
@@ -100,9 +101,10 @@ static struct list *split_str_on_lexemes_list(const char *str)
 
 static char *get_next_lexeme(const char **str)
 {
+	enum { out_quote, in_quote };
 	const char *s = *str;
 	char *lexeme = NULL;
-	int buff_size = 5, pos = 0;
+	int buff_size = 5, pos = 0, state = out_quote;
 
 	lexeme = malloc(sizeof(char) * buff_size);
 	if (lexeme == NULL) {
@@ -111,14 +113,20 @@ static char *get_next_lexeme(const char **str)
 	while (*s == ' ' || *s == '\t') {
 		s++;
 	}
-	while (*s != ' ' && *s != '\t' && *s != '\n') {
+	for (; *s != '\n'; s++) {
+		if (state == out_quote && (*s == ' ' || *s == '\t')) {
+			break;
+		}
+		if (*s == '"') {
+			state = (state == out_quote ? in_quote : out_quote);
+			continue;
+		}
 		if (!is_buff_big_enough(buff_size, pos + 1)) {
 			buff_size *= 2;
 			lexeme = realloc(lexeme, buff_size);
 		}
 		lexeme[pos] = *s;
 		pos++;
-		s++;
 	}
 	lexeme[pos] = '\0';
 	*str = s;
