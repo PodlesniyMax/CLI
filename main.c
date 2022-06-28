@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "get_command.h"
+#include "error_cli.h"
 
 void process_command(void);
 void free_mem(struct list *lexeme_list);
@@ -19,7 +20,7 @@ int main(int argc, char **argv)
 		} else if (state == empty_str) {
 			continue;
 		} else if (state == error) {
-			printf("Error: wrong command\n");
+			print_error();
 			continue;
 		}
 		for (struct list *l = lexeme_list; l; l = l->next) {

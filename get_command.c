@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "get_command.h"
+#include "error_cli.h"
 
 static int push_input_to_buffer(char **buff);
 static bool is_correct_str(const char *str);
@@ -75,9 +76,20 @@ static bool is_correct_str(const char *str)
 		if (*str == '"') {
 			counter++;
 		}
+		if (*str == '\\') {
+			str++;
+			if (*str != '\\' && *str != '"') {
+				write_error("Incorrect escape sequence");
+				return false;
+			}
+		}
+	}
+	if (counter % 2 != 0) {
+		write_error("Incorrect number of \" simbols");
+		return false;
 	}
 
-	return counter % 2 == 0 ? true : false;
+	return true;
 }
 
 static bool is_empty(const char *str)
@@ -120,6 +132,9 @@ static char *get_next_lexeme(const char **str)
 		if (*s == '"') {
 			state = (state == out_quote ? in_quote : out_quote);
 			continue;
+		}
+		if (*s == '\\') {
+			s++;
 		}
 		if (!is_buff_big_enough(buff_size, pos + 1)) {
 			buff_size *= 2;
