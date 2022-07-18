@@ -118,6 +118,10 @@ static char *get_next_lexeme(const char **str)
 	char *lexeme = NULL;
 	int buff_size = 5, pos = 0, state = out_quote;
 
+	if (is_empty(s)) {
+		return NULL;
+	}
+
 	lexeme = malloc(sizeof(char) * buff_size);
 	if (lexeme == NULL) {
 		return NULL;
@@ -145,10 +149,6 @@ static char *get_next_lexeme(const char **str)
 	}
 	lexeme[pos] = '\0';
 	*str = s;
-	if (pos == 0) {
-		free(lexeme);
-		lexeme = NULL;
-	}
 	return lexeme;
 }
 
