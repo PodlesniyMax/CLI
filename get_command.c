@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "types_cli.h"
 #include "get_command.h"
 #include "error_cli.h"
 

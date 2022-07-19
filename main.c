@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "types_cli.h"
 #include "get_command.h"
+#include "process_command.h"
 #include "error_cli.h"
 
-void process_command(void);
 void free_mem(struct list *lexeme_list);
 
 int main(int argc, char **argv)
@@ -26,14 +27,13 @@ int main(int argc, char **argv)
 		for (struct list *l = lexeme_list; l; l = l->next) {
 			printf("[%s]\n", l->lexeme);
 		}
-		process_command();
+		process_command(lexeme_list);
 		free_mem(lexeme_list);
 	}
 	printf("\n");
 	return 0;
 }
 
-void process_command(void){}
 void free_mem(struct list *lexeme_list)
 {
 	while (lexeme_list) {
